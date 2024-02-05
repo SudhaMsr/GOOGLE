@@ -1,14 +1,17 @@
 
 import googlemaps
+import time
 
-def getTextDirections():
+def getTextDirections(source,destination):
     API_KEY = 'AIzaSyAj5is27Ui1bJ5CMSCdGEcus41LIiZ5Zy8'
     map_client = googlemaps.Client(API_KEY)
 
-    source = "University of Bristol"
-    destination = "Bristol Temple meads"
+    source = source
+    destination = destination
 
-    direction_result = map_client.directions(source,destination,mode = "walking",step_by_step = True)
+    t0 = time.time()
+    direction_result = map_client.directions(source,destination,mode = "walking")
+    print(time.time() - t0)
 
     print(direction_result[0]['legs'][0]['distance'])
     print(direction_result[0]['legs'][0]['duration'])
@@ -18,4 +21,4 @@ def getTextDirections():
 
 
 
-getTextDirections()
+getTextDirections("University of Bristol","Temple meads")
