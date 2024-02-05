@@ -1,0 +1,84 @@
+import tkinter as tk
+import cv2
+import pytesseract
+import pyttsx3
+import speech_recognition as sr
+
+# Configure Tesseract OCR path (update this with your Tesseract installation path)
+pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+
+# Initialize Text-to-Speech engine
+engine = pyttsx3.init()
+
+# Initialize Speech Recognition engine
+recognizer = sr.Recognizer()
+
+class BlindAssistanceApp:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Blind Assistance App")
+
+        self.label = tk.Label(root, text="Blind Assistance App", font=("Arial", 18))
+        self.label.pack(pady=10)
+
+        self.listen_command()
+
+    def listen_command(self):
+        with sr.Microphone() as source:
+            engine.say("Listening for commands. Say 'start' to begin assistance.")
+            engine.runAndWait()
+
+            try:
+                audio_data = recognizer.listen(source, timeout=5)
+                command = recognizer.recognize_google(audio_data).lower()
+
+                if 'start' in command:
+                    self.assist_user()
+
+            except sr.UnknownValueError:
+                pass  # Ignore if no command is recognized
+
+            self.listen_command()
+
+    def assist_user(self):
+        engine.say("Assistance started. Say 'stop' to end assistance.")
+        engine.runAndWait()
+
+        # Open the camera (use 0 for the default camera)
+        cap = cv2.VideoCapture(0)
+
+        while True:
+            try:
+                with sr.Microphone() as source:
+                    audio_data = recognizer.listen(source, timeout=5)
+                    command = recognizer.recognize_google(audio_data).lower()
+
+                    if 'stop' in command:
+                        break
+
+                    # Continue with the text extraction and providing audio feedback based on the extracted text
+                    ret, frame = cap.read()
+                    extracted_text = self.extract_text_from_frame(frame)
+
+                    if extracted_text:
+                        convert_text_to_audio(extracted_text)
+
+            except sr.UnknownValueError:
+                pass  # Ignore if no command is recognized
+
+        engine.say("Assistance stopped. Say 'start' to begin assistance.")
+        engine.runAndWait()
+
+        # Release the camera and close all OpenCV windows
+        cap.release()
+        cv2.destroyAllWindows()
+
+    def extract_text_from_frame(self, frame):
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        text = pytesseract.image_to_string(gray)
+        return text
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = BlindAssistanceApp(root)
+    root.mainloop()
