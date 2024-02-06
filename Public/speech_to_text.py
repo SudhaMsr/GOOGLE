@@ -15,6 +15,9 @@ client = speech.SpeechClient(credentials=credentials)
 
 
 def speechToText():
+
+    # wait for pressing key 'r', record, speech-to-text
+
     frames = []
     p = pyaudio.PyAudio()
     stream = p.open(format=FORMAT,
@@ -46,4 +49,4 @@ def speechToText():
 
 
 if __name__ == '__main__':
-    speechToText()
+    print(speechToText())
