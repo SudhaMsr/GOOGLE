@@ -48,7 +48,7 @@ def reverse_geocode(api_key, latitude, longitude):
 
     if data['status'] == 'OK':
         results = data['results']
-        if results:u
+        if results:
 
             address_components = results[0]['address_components']
             for component in address_components:
