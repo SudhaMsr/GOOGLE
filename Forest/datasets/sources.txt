@@ -1,0 +1,4 @@
+WOTR: https://github.com/kxzr/WOTR
+strongSORT: https://github.com/kadirnar/strongsort-pip
+deepSORT: https://github.com/levan92/deep_sort_realtime?tab=MIT-1-ov-file
+car fullview: https://www.mdpi.com/2079-9292/12/24/4947

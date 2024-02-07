@@ -11,4 +11,4 @@ def drawBoxes(img, boxes, names):
         img = cv2.line(img, vertices[0], vertices[len(vertices) - 1], (255, 0, 0), 8)
 
         cv2.putText(img, names[int(b.cls)], vertices[0], cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0))
-    return img
+    cv2.imshow('cam', img)

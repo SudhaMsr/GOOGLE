@@ -1,0 +1,25 @@
+path: datasets/WOTR_yolo # dataset root dir
+train: images/train # train images (relative to 'path')
+val: images/val # val images (relative to 'path')
+# Classes (80 COCO classes)
+names:
+  0: tree
+  1: red_light
+  2: green_light
+  3: crosswalk
+  4: blind_road
+  5: sign
+  6: person
+  7: bicycle
+  8: bus
+  9: truck
+  10: car
+  11: motorcycle
+  12: reflective_cone
+  13: ashcan
+  14: warning_column
+  15: roadblock
+  16: pole
+  17: dog
+  18: tricycle
+  19: fire_hydrant
