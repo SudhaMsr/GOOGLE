@@ -53,7 +53,13 @@ BUS_SIZE = (2.55, 12)
 # AVERAGE PERSON SHOULDER WIDTH
 PERSON_SIZE = 0.46
 
+
 # FOCAL LENGTH (needs calibration)
+
+def getFocalLength():
+    return 683
+
+
 FOCAL_LENGTH = getFocalLength()
 
 
@@ -69,7 +75,7 @@ def realTimeAnnotate(frame):
     distances = distancesEstimation(tracks, angles)
     speeds = speedsEstimation()
 
-    cv2.imshow('cam', frame)
+    # cv2.imshow('cam', frame)
     return tracks, distances, speeds
 
 
@@ -95,8 +101,8 @@ def objectTracking(boxes, frame):
             tr_id = tr.track_id
             ltrb = tr.to_ltrb()
             bb = [int(e) for e in ltrb]
-            cv2.rectangle(frame, (bb[0], bb[1]), (bb[2], bb[3]), (0, 0, 225), 2)
-            cv2.putText(frame, str(tr_id), (bb[0], bb[1]), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 225), 2)
+            # cv2.rectangle(frame, (bb[0], bb[1]), (bb[2], bb[3]), (0, 0, 225), 2)
+            # cv2.putText(frame, str(tr_id), (bb[0], bb[1]), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 225), 2)
 
     else:
         # np.array([x1, y1, x2, y2, track_id, class_id, conf]
@@ -111,12 +117,12 @@ def objectTracking(boxes, frame):
         tracks = tracker.update(torch.tensor(detections), frame)
         for trnp in tracks:
             tr = trnp.tolist()
-            cv2.rectangle(frame, (tr[0], tr[1]), (tr[2], tr[3]), (0, 0, 225), 2)
-            cv2.putText(frame, f"{model.names[tr[5]]}{str(tr[4])}", (tr[0], tr[1]), cv2.FONT_HERSHEY_SIMPLEX, 1,
-                        (0, 0, 225), 2)
+            # cv2.rectangle(frame, (tr[0], tr[1]), (tr[2], tr[3]), (0, 0, 225), 2)
+            # cv2.putText(frame, f"{model.names[tr[5]]}{str(tr[4])}", (tr[0], tr[1]), cv2.FONT_HERSHEY_SIMPLEX, 1,
+                        # (0, 0, 225), 2)
 
     duration = time.time() - t
-    cv2.putText(frame, f"FPS: {1 / duration}", (20, 70), cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0, 255, 0), 2)
+    # cv2.putText(frame, f"FPS: {1 / duration}", (20, 70), cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0, 255, 0), 2)
     return tracks
 
 
@@ -195,7 +201,7 @@ def getAngles(tracks, frame):
                          int(start_point[1] - length * np.sin(angle_rad)))
 
             # Draw the arrowed line
-            cv2.arrowedLine(frame, start_point, end_point, (0, 255, 0), thickness=2)
+            # cv2.arrowedLine(frame, start_point, end_point, (0, 255, 0), thickness=2)
 
     return angles
 
@@ -219,7 +225,3 @@ def getActualWidth(constSize, angle=None):
     transformedXs = transformedPoints[:, :-1].squeeze()
     return transformedXs.max() - transformedXs.min()
 
-
-# TODO
-def getFocalLength():
-    return 683
