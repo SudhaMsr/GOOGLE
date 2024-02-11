@@ -9,8 +9,7 @@ import googlemaps
 import geocoder
 
 
-
-def get_current_loc(api_key,mac,ssid,signal_strength):
+def get_current_loc(api_key, mac, ssid, signal_strength):
     url = 'https://www.googleapis.com/geolocation/v1/geolocate'
     headers = {'Content-Type': 'application/json'}
     params = {'key': api_key}
@@ -37,6 +36,7 @@ def get_current_loc(api_key,mac,ssid,signal_strength):
     else:
             print('Error:', response.status_code, response.text)
 
+
 def reverse_geocode(api_key, latitude, longitude):
     geocoding_url = 'https://maps.googleapis.com/maps/api/geocode/json'
     params = {
@@ -48,7 +48,7 @@ def reverse_geocode(api_key, latitude, longitude):
 
     if data['status'] == 'OK':
         results = data['results']
-        if results:u
+        if results:
 
             address_components = results[0]['address_components']
             for component in address_components:
@@ -80,15 +80,13 @@ def get_current_ssid():
         [line.strip() for line in result.stdout.splitlines() if line.strip().startswith("agrCtlRSSI:")][0]
         signal_strength = int(signal_strength_line.split(':', 1)[1].strip())
 
-        return ssid,signal_strength
+        return ssid, signal_strength
 
     except subprocess.CalledProcessError as e:
         print(f"Error: {e}")
 
 
-
 if __name__ == "__main__":
-
         api_key = 'AIzaSyAvh4QL3ZYXkWGm6UQoeYmTOoLP6SksgVs'
         api_key2 = 'AIzaSyAfeVvRD0R0vm8tgrz7XfD5LWrOIWAe9KI'
         api_key3 = 'AIzaSyAj5is27Ui1bJ5CMSCdGEcus41LIiZ5Zy8'

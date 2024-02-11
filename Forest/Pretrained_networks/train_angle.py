@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 import keras
 import cv2
+from Forest import annotate_realtime
 
 # train_labels_raw = pd.read_csv("datasets/CFV-Dataset/train.csv")
 # # train_labels = train_labels.loc[:, ["image_path", "angle"]]
@@ -49,7 +50,7 @@ for i, row in tqdm(test_labels_raw.iterrows(), total=test_labels_raw.shape[0]):
     if x1 == 0:
         continue
 
-    image = np.asarray(Image.open(f"datasets/CFV-Dataset/images/{image_path}", 'r').crop((x1, y1, x2, y2))
+    image = np.asarray(Image.open(f"../datasets/CFV-Dataset/images/{image_path}", 'r').crop((x1, y1, x2, y2))
                        .resize((128, 128)))
     test_x.append(image)
     test_y.append(angle)
@@ -123,20 +124,20 @@ test_dataset = test_dataset.batch(32)
 # plt.show()
 
 angle_estimator = keras.models.load_model("angle_model/angle_model.keras")
-angle_estimator.load_weights("Pretrained_networks/angle_model/angle_model_weights.h5")
+angle_estimator.load_weights("../Pretrained_networks/angle_model/angle_model_weights.h5")
 # score = angle_estimator.evaluate(test_x, test_y, verbose=0)
 
-img = Image.open("download.jpg")
-img = img.resize((128, 128))
-img = np.asarray(img)
-img = np.array([img])
+# img = Image.open("download.jpg")
+# img = img.resize((128, 128))
+# img = np.asarray(img)
+# img = np.array([img])
 
 angles = angle_estimator.predict(test_x)
 cnt = 0
 
 for a in angles.tolist():
     angle = a[0] * 360
-    print(angle)
+    print(annotate_realtime.distancesEstimation())
     # draw
     length = 25
     start_point = (64, 64)
