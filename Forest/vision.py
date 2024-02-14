@@ -1,8 +1,5 @@
-
-from ultralytics import YOLO
 import cv2
-from Public.utilities import drawBoxes
-from annotate_realtime import realTimeAnnotate
+from Application.annotate_realtime import realTimeAnnotate
 
 
 capture = cv2.VideoCapture(0)

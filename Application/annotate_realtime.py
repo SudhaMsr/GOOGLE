@@ -101,8 +101,10 @@ def objectTracking(boxes, frame):
             tr_id = tr.track_id
             ltrb = tr.to_ltrb()
             bb = [int(e) for e in ltrb]
-            # cv2.rectangle(frame, (bb[0], bb[1]), (bb[2], bb[3]), (0, 0, 225), 2)
-            # cv2.putText(frame, str(tr_id), (bb[0], bb[1]), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 225), 2)
+            """
+            cv2.rectangle(frame, (bb[0], bb[1]), (bb[2], bb[3]), (0, 0, 225), 2)
+            cv2.putText(frame, str(tr_id), (bb[0], bb[1]), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 225), 2)
+            """
 
     else:
         # np.array([x1, y1, x2, y2, track_id, class_id, conf]
@@ -115,11 +117,13 @@ def objectTracking(boxes, frame):
             detections.append(dets)
 
         tracks = tracker.update(torch.tensor(detections), frame)
+        """
         for trnp in tracks:
             tr = trnp.tolist()
-            # cv2.rectangle(frame, (tr[0], tr[1]), (tr[2], tr[3]), (0, 0, 225), 2)
-            # cv2.putText(frame, f"{model.names[tr[5]]}{str(tr[4])}", (tr[0], tr[1]), cv2.FONT_HERSHEY_SIMPLEX, 1,
-                        # (0, 0, 225), 2)
+            cv2.rectangle(frame, (tr[0], tr[1]), (tr[2], tr[3]), (0, 0, 225), 2)
+            cv2.putText(frame, f"{model.names[tr[5]]}{str(tr[4])}", (tr[0], tr[1]), cv2.FONT_HERSHEY_SIMPLEX, 1,
+                        (0, 0, 225), 2)
+        """
 
     duration = time.time() - t
     # cv2.putText(frame, f"FPS: {1 / duration}", (20, 70), cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0, 255, 0), 2)
@@ -190,6 +194,7 @@ def getAngles(tracks, frame):
             angle = predicted[cnt][0] * 360
             cnt += 1
 
+            """
             # draw
             length = 150
             start_point = ((x1 + x2) // 2, (y1 + y2) // 2)
@@ -202,6 +207,7 @@ def getAngles(tracks, frame):
 
             # Draw the arrowed line
             # cv2.arrowedLine(frame, start_point, end_point, (0, 255, 0), thickness=2)
+            """
 
     return angles
 

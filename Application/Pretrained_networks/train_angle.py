@@ -2,18 +2,14 @@ import tensorflow as tf
 import pandas as pd
 from PIL import Image
 import numpy as np
-from keras.models import Sequential
-from keras import layers
-from keras import losses
-import matplotlib.pyplot as plt
 from tqdm import tqdm
 import keras
 import cv2
-from Forest import annotate_realtime
+from Application import annotate_realtime
 
 # train_labels_raw = pd.read_csv("datasets/CFV-Dataset/train.csv")
 # # train_labels = train_labels.loc[:, ["image_path", "angle"]]
-test_labels_raw = pd.read_csv("../datasets/CFV-Dataset/test.csv")
+test_labels_raw = pd.read_csv("../../Forest/datasets/CFV-Dataset/test.csv")
 print(tf.config.list_physical_devices())
 
 # store images
