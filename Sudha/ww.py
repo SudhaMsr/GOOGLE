@@ -50,5 +50,5 @@ start_button.pack()
 exit_button = ttk.Button(app, text="Exit", command=app.destroy)
 exit_button.pack()
 
-app.mainloop()
+# app.mainloop()
 
