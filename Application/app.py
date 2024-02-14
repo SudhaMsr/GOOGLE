@@ -3,10 +3,11 @@ import cv2
 import annotate_realtime
 import ocrYolo
 import sys
+from flask_socketio import SocketIO
 
 
 app = Flask(__name__)
-
+# socketio = SocketIO(app)
 
 
 def gen_frames():
@@ -35,4 +36,4 @@ def video_feed():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()
