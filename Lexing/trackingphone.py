@@ -1,33 +1,37 @@
-import objc
-from Foundation import *
-from CoreLocation import *
+from kivy.app import App
+from kivy.uix.boxlayout import BoxLayout
+from kivy.clock import Clock
+from plyer import gps
 
 
-# Define a function to handle location updates
-def location_update(manager, locations):
-    for location in locations:
-        print("Latitude:", location.coordinate().latitude)
-        print("Longitude:", location.coordinate().longitude)
+class GPSDemo(BoxLayout):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.gps_location = None
+        self.gps_status = None
+
+        gps.configure(on_location=self.on_location, on_status=self.on_status)
+        Clock.schedule_once(self.start_gps, 1)
+
+    def start_gps(self, dt):
+        gps.start()
+
+    def stop_gps(self):
+        gps.stop()
+
+    def on_location(self, **kwargs):
+        self.gps_location = kwargs['lat'], kwargs['lon']
+        print("GPS Location:", self.gps_location)
+
+    def on_status(self, stype, status):
+        self.gps_status = status
+        print("GPS status:", self.gps_status)
 
 
-def main():
-    # Create a CLLocationManager object
-    locationManager = objc.lookUpClass('CLLocationManager').alloc().init()
-
-    # Set the delegate for location updates
-    locationManager.setDelegate_(None)
-    locationManager.setDelegate_(location_update)
-
-    # Request authorization from the user
-    locationManager.requestAlwaysAuthorization()
-
-    # Start updating location
-    locationManager.startUpdatingLocation()
-
-    # Run the main event loop
-    objc.lookUpClass('NSRunLoop').currentRunLoop().run()
+class MyApp(App):
+    def build(self):
+        return GPSDemo()
 
 
-if __name__ == "__main__":
-    print("hello")
-    main()
+if __name__ == '__main__':
+    MyApp().run()
