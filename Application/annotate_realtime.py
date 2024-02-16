@@ -9,7 +9,6 @@ from strongsort.strong_sort import StrongSORT  # https://github.com/kadirnar/str
 import time
 from pathlib import Path
 import keras
-from PIL import Image
 import numpy as np
 
 TRACKER_NAME = "strongSORT"
@@ -66,6 +65,9 @@ FOCAL_LENGTH = getFocalLength()
 # ============================================
 
 
+lastDistances = {}
+lastTime = time.time()
+
 def realTimeAnnotate(frame):
     boxes = objectsDetection(frame)
 
@@ -73,7 +75,7 @@ def realTimeAnnotate(frame):
     angles = getAngles(tracks, frame)
 
     distances = distancesEstimation(tracks, angles)
-    speeds = speedsEstimation()
+    speeds = speedsEstimation(distances)
 
     # cv2.imshow('cam', frame)
     return tracks, distances, speeds
@@ -165,8 +167,21 @@ def distancesEstimation(tracks, angles):
     return distance
 
 
-def speedsEstimation():
-    return 0
+def speedsEstimation(distances):
+    global lastDistances
+    global lastTime
+
+    speeds = {}
+    currTime = time.time()
+    for track_id in distances.keys():
+        if track_id not in lastDistances.keys():
+            continue
+        # If the id is in last distances, estimate the speed towards the user
+        speeds[track_id] = (lastDistances[track_id] - distances[track_id]) / (currTime - lastTime)
+
+    lastDistances = distances
+    lastTime = currTime
+    return speeds
 
 
 def getAngles(tracks, frame):
