@@ -1,119 +1,66 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Map with Sidebar</title>
-<style>
-  /* Optional: Makes the sample page fill the window. */
-  html, body {
-    height: 100%;
-    margin: 0;
-    padding: 0;
-  }
-
-  #container {
-    height: 100%;
-    display: flex;
-  }
-
-  #sidebar {
-    flex-basis: 15rem;
-    flex-grow: 1;
-    padding: 1rem;
-    max-width: 30rem;
-    height: 100%;
-    box-sizing: border-box;
-    overflow: auto;
-  }
-
-  #map {
-    flex-basis: 0;
-    flex-grow: 4;
-    height: 100%;
-  }
-
-  #floating-panel {
-    position: absolute;
-    top: 10px;
-    left: 25%;
-    z-index: 5;
-    background-color: #fff;
-    padding: 5px;
-    border: 1px solid #999;
-    text-align: center;
-    font-family: "Roboto", "sans-serif";
-    line-height: 30px;
-    padding-left: 10px;
-  }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GPS Access with Flask</title>
 </head>
 <body>
-<div id="container">
-  <div id="sidebar">
-    <div id="floating-panel">
-      <b>Start:</b>
-      <select id="start">
-        <option value="London, IL">London</option>
-        <option value="New York, NY">New York</option>
-        <option value="Los Angeles, CA">Los Angeles</option>
-      </select>
-      <br>
-      <b>End:</b>
-      <select id="end">
-        <option value="San Francisco, CA">San Francisco</option>
-        <option value="Seattle, WA">Seattle</option>
-        <option value="Las Vegas, NV">Las Vegas</option>
-      </select>
-    </div>
-  </div>
-  <div id="map"></div>
-</div>
+    <h1>GPS Access with Flask</h1>
+    <div id = "details"></div>
+    <script>
+        var reqcount = 0;
+        navigator.geolocation.watchPosition(successCallback, errorCallback, options);
 
-<!-- Load the Google Maps JavaScript API with your API key -->
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCfUj9_ySUEWdYuMEEk2vTVOtC14KV5QBg&callback=initMap" async defer></script>
+        function successCallback(position) {
+            const {accuracy, latitude, longitude, altitude, heading, speed} = position.coords;
 
-<!-- Include the JavaScript code -->
-<script>
-  function initMap() {
-    const directionsRenderer = new google.maps.DirectionsRenderer();
-    const directionsService = new google.maps.DirectionsService();
-    const map = new google.maps.Map(document.getElementById("map"), {
-      zoom: 7,
-      center: { lat: 51.4551, lng: -2.5830 },
-      disableDefaultUI: true,
-    });
+            reqcount++;
 
-    directionsRenderer.setMap(map);
-    directionsRenderer.setPanel(document.getElementById("sidebar"));
+            // Update details on the webpage
+            details.innerHTML = "Accuracy: " + accuracy + "<br>";
+            details.innerHTML += "Latitude: " + latitude + " | Longitude: " + longitude + "<br>";
+            details.innerHTML += "Speed: " + speed + "<br>";
 
-    const control = document.getElementById("floating-panel");
-    map.controls[google.maps.ControlPosition.TOP_CENTER].push(control);
+            // Send latitude and longitude to server-side Python script using AJAX
+            sendDataToPython(latitude, longitude);
+        }
 
-    const onChangeHandler = function () {
-      calculateAndDisplayRoute(directionsService, directionsRenderer);
-    };
+        function errorCallback(error) {
+            // Handle errors if needed
+        }
 
-    document.getElementById("start").addEventListener("change", onChangeHandler);
-    document.getElementById("end").addEventListener("change", onChangeHandler);
-  }
+        var options = {
+            enableHighAccuracy: false,
+            timeout: 5000,
+        }
 
-  function calculateAndDisplayRoute(directionsService, directionsRenderer) {
-    const start = document.getElementById("start").value;
-    const end = document.getElementById("end").value;
+        function sendDataToPython(latitude, longitude) {
+            // Create an XMLHttpRequest object
+            var xhr = new XMLHttpRequest();
 
-    directionsService.route({
-      origin: start,
-      destination: end,
-      travelMode: google.maps.TravelMode.DRIVING,
-    })
-    .then((response) => {
-      directionsRenderer.setDirections(response);
-    })
-    .catch((e) => window.alert("Directions request failed due to " + e));
-  }
+            // Define the POST request endpoint (URL of the Python script)
+            var url = "http://127.0.0.1:5000/update_location"; // Replace with your server URL
 
-  window.initMap = initMap;
-</script>
+            // Prepare the data to be sent as JSON
+            var data = {
+                "latitude": latitude,
+                "longitude": longitude
+            };
+
+            // Convert data to JSON format
+            var jsonData = JSON.stringify(data);
+
+            // Configure the request
+            xhr.open("POST", url, true);
+            xhr.setRequestHeader("Content-Type", "application/json");
+
+            // Send the request with the data
+            xhr.send(jsonData);
+        }
+
+
+
+    </script>
 </body>
 </html>
