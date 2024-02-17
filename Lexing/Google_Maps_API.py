@@ -21,4 +21,4 @@ def getTextDirections(source,destination):
 
 
 
-getTextDirections("University of Bristol","Temple meads")
+getTextDirections("Print hall student accomodation","Physics building university of bristol")

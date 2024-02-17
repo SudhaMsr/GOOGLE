@@ -1,37 +1,27 @@
-from kivy.app import App
-from kivy.uix.boxlayout import BoxLayout
-from kivy.clock import Clock
-from plyer import gps
+from flask import Flask, render_template, request,jsonify
+
+app = Flask(__name__)
+
+@app.route('/')
+def index():
+    return render_template('maps.html')
 
 
-class GPSDemo(BoxLayout):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.gps_location = None
-        self.gps_status = None
+@app.route('/update_location', methods=['POST'])
+def receive_data():
+    # Receive latitude and longitude data from the AJAX request
+    data = request.json
+    latitude = data['latitude']
+    longitude = data['longitude']
 
-        gps.configure(on_location=self.on_location, on_status=self.on_status)
-        Clock.schedule_once(self.start_gps, 1)
+    # Perform any processing you want with the latitude and longitude values
+    # For demonstration, let's just print them
+    print("Received latitude:", latitude)
+    print("Received longitude:", longitude)
 
-    def start_gps(self, dt):
-        gps.start()
-
-    def stop_gps(self):
-        gps.stop()
-
-    def on_location(self, **kwargs):
-        self.gps_location = kwargs['lat'], kwargs['lon']
-        print("GPS Location:", self.gps_location)
-
-    def on_status(self, stype, status):
-        self.gps_status = status
-        print("GPS status:", self.gps_status)
-
-
-class MyApp(App):
-    def build(self):
-        return GPSDemo()
+    # You can also return a response to the JavaScript code if needed
+    return jsonify({"status": "success"})
 
 
 if __name__ == '__main__':
-    MyApp().run()
+    app.run(debug=True)
