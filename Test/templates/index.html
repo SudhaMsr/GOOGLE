@@ -2,16 +2,52 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Text-to-Speech Flask App</title>
+    <title>Video Streaming App</title>
 </head>
 <body>
-    <h1>Text-to-Speech Flask App</h1>
-    <form action="/speak" method="get">
-        <label for="message">Enter a message to speak:</label>
-        <input type="text" id="message" name="message" required>
-        <button type="submit">Speak</button>
-    </form>
+    <h1>Video Streaming App</h1>
+    <button id="toggleButton" onclick="toggleVideo()">Toggle Video</button>
+    <video id="video" style="display:none;"></video>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script>
+        var socket = io.connect('http://' + document.domain + ':' + location.port);
+
+        var constraints = {
+            video: true
+        };
+
+        navigator.mediaDevices.getUserMedia(constraints)
+            .then(function (stream) {
+                var video = document.getElementById('video');
+                video.srcObject = stream;
+                video.play();
+
+                socket.on('receive_frame', function (data) {
+                    var frame = new Image();
+                    frame.src = 'data:image/jpeg;base64,' + data;
+                    document.body.appendChild(frame);
+                });
+            })
+            .catch(function (error) {
+                console.error('Error accessing camera:', error);
+            });
+
+        function toggleVideo() {
+            var video = document.getElementById('video');
+            var button = document.getElementById('toggleButton');
+
+            if (video.style.display === 'none') {
+                video.style.display = 'block';
+                button.textContent = 'Disable Video';
+                socket.emit('video_toggle', { status: 'enabled' });
+            } else {
+                video.style.display = 'none';
+                button.textContent = 'Enable Video';
+                socket.emit('video_toggle', { status: 'disabled' });
+            }
+        }
+    </script>
 </body>
 </html>

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GPS Access with Flask</title>
+</head>
+<body>
+    <h1>GPS Access with Flask</h1>
+    <div id = "details"></div>
+    <script>
+        var reqcount = 0;
+        navigator.geolocation.watchPosition(successCallback, errorCallback, options);
+
+        function successCallback(position) {
+            const {accuracy, latitude, longitude, altitude, heading, speed} = position.coords;
+
+            reqcount++;
+
+            // Update details on the webpage
+            details.innerHTML = "Accuracy: " + accuracy + "<br>";
+            details.innerHTML += "Latitude: " + latitude + " | Longitude: " + longitude + "<br>";
+            details.innerHTML += "Speed: " + speed + "<br>";
+
+            // Send latitude and longitude to server-side Python script using AJAX
+            sendDataToPython(latitude, longitude);
+        }
+
+        function errorCallback(error) {
+            // Handle errors if needed
+        }
+
+        var options = {
+            enableHighAccuracy: false,
+            timeout: 5000,
+        }
+
+        function sendDataToPython(latitude, longitude) {
+            // Create an XMLHttpRequest object
+            var xhr = new XMLHttpRequest();
+
+            // Define the POST request endpoint (URL of the Python script)
+            var url = "http://127.0.0.1:5000/update_location"; // Replace with your server URL
+
+            // Prepare the data to be sent as JSON
+            var data = {
+                "latitude": latitude,
+                "longitude": longitude
+            };
+
+            // Convert data to JSON format
+            var jsonData = JSON.stringify(data);
+
+            // Configure the request
+            xhr.open("POST", url, true);
+            xhr.setRequestHeader("Content-Type", "application/json");
+
+            // Send the request with the data
+            xhr.send(jsonData);
+        }
+
+
+
+    </script>
+</body>
+</html>

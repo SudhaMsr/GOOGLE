@@ -1,28 +1,16 @@
-from flask import Flask, render_template, Response
 import cv2
-import annotate_realtime
-import ocrYolo
+# import ocrYolo
 import sys
 from flask_socketio import SocketIO
+from speech_to_text import speechToText
+from flask import Flask, render_template, request, jsonify
+from flask_socketio import SocketIO, emit
 
 
 app = Flask(__name__)
-# socketio = SocketIO(app)
+socketio = SocketIO(app)
 
-
-def gen_frames():
-    cap = cv2.VideoCapture(0)  # Use 0 for the default camera, or replace with the video file path
-
-    while True:
-        success, frame = cap.read()
-        if not success:
-            break
-        else:
-            frame = ocrYolo.detect_objects_and_extract_text(frame)
-            ret, buffer = cv2.imencode('.jpg', frame)
-            frame = buffer.tobytes()
-            yield (b'--frame\r\n'
-                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+recording_data = []  # Variable to store recorded audio data
 
 
 @app.route('/')
@@ -30,10 +18,27 @@ def index():
     return render_template('index.html')
 
 
-@app.route('/video_feed')
-def video_feed():
-    return Response(gen_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
+@socketio.on('toggle_microphone')
+def toggle_microphone():
+    emit('microphone_toggled', {'status': 'Microphone is now {}'.format('On' if len(recording_data) == 0 else 'Off')})
+
+
+@socketio.on('audio_data')
+def handle_audio_data(data):
+    audio_data = data.get('audioData')
+    recording_data.extend(audio_data)
+
+
+@socketio.on('send_audio')
+def send_audio():
+    # Process the audio data in Python
+    # Example: Convert audio data to base64 for simplicity
+    text = speechToText(recording_data)
+    recording_data.clear()
+
+    emit('processed_audio', {'result': 'Audio processed successfully', 'text': text})
 
 
 if __name__ == '__main__':
-    app.run()
+    socketio.run(app, debug=True)
+

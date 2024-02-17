@@ -1,27 +1,20 @@
-import requests
+from flask import Flask, render_template
+from flask_socketio import SocketIO, emit
 
-def get_walking_directions(api_key, origin_lat, origin_lng, destination_lat, destination_lng):
-    origin = f"{origin_lat},{origin_lng}"
-    destination = f"{destination_lat},{destination_lng}"
+app = Flask(__name__)
+socketio = SocketIO(app)
 
-    url = f"https://maps.googleapis.com/maps/api/directions/json?origin={origin}&destination={destination}&mode=walking&key={api_key}"
-    response = requests.get(url)
-    data = response.json()
+@app.route('/')
+def index():
+    return render_template('index.html')
 
-    if data["status"] == "OK":
-        steps = data["routes"][0]["legs"][0]["steps"]
-        for step in steps:
-            instruction = step["html_instructions"]  # HTML instruction, may contain tags
-            distance = step["distance"]["text"]
-            print(f"{instruction} ({distance})")
-    else:
-        print(f"Error: {data['status']}")
+@socketio.on('video_toggle')
+def video_toggle(data):
+    emit('toggle_response', data, broadcast=True)
 
-# Replace these values with your Google Maps API key and latitude/longitude coordinates
-api_key = "AIzaSyAj5is27Ui1bJ5CMSCdGEcus41LIiZ5Zy8"
-origin_lat = 40.748817  # Example latitude for Central Park, New York
-origin_lng = -73.985428  # Example longitude for Central Park, New York
-destination_lat = 40.758896  # Example latitude for Times Square, New York
-destination_lng = -73.985130  # Example longitude for Times Square, New York
+@socketio.on('send_frame')
+def send_frame(data):
+    emit('receive_frame', data, broadcast=True)
 
-get_walking_directions(api_key, origin_lat, origin_lng, destination_lat, destination_lng)
+if __name__ == '__main__':
+    socketio.run(app)

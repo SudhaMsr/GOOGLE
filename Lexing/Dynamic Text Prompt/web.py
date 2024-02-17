@@ -2,17 +2,20 @@ from flask import Flask, render_template, request,jsonify
 from Tracking import get_walking_directions
 from math import radians, sin, cos, sqrt, atan2
 
+
 app = Flask(__name__)
 api_key = "AIzaSyAj5is27Ui1bJ5CMSCdGEcus41LIiZ5Zy8"
-origin_lat = 51.455205632789955
-origin_lng = -2.582902280206153
-destination_lat = 51.454514
-destination_lng = -2.587910
+# origin_lat = 51.455205632789955
+# origin_lng = -2.582902280206153
+# destination_lat = 51.454514
+# destination_lng = -2.587910
+#
+# I,D,S = get_walking_directions(api_key, origin_lat, origin_lng, destination_lat, destination_lng)
+# print(I)
+# print(S[0]['lat'])
 
-I,D,S = get_walking_directions(api_key, origin_lat, origin_lng, destination_lat, destination_lng)
-print(I)
-print(S[0]['lat'])
 
+last_instruction = ""
 
 @app.route('/')
 def index():
@@ -30,10 +33,14 @@ def receive_data():
     # Perform any processing you want with the latitude and longitude values
     print("Received latitude:", latitude)
     print("Received longitude:", longitude)
+    I, D, S = get_walking_directions(api_key, latitude, longitude, destination_lat, destination_lng)
 
-    closest_instruction,coords = find_closest_instruction(latitude, longitude, S,I)
-    distance_to_instruction = calculate_distance(latitude, longitude, coords[0],
-                                                     coords[1])
+    closest_instruction, coords = find_closest_instruction(latitude, longitude, S, I)
+    global last_instruction
+    if closest_instruction != last_instruction:
+
+
+    distance_to_instruction = calculate_distance(latitude, longitude, coords[0], coords[1])
     prompt = f"Next instruction: {closest_instruction}. Distance: {distance_to_instruction} km"
 
     print(prompt)

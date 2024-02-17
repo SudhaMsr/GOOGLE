@@ -96,18 +96,6 @@ def objectTracking(boxes, frame):
             detections.append(([left, top, width, height], box.conf, name))
         tracks = tracker.update_tracks(detections, frame=frame)
 
-        # draw tracks
-        for tr in tracks:
-            if not tr.is_confirmed():
-                continue
-            tr_id = tr.track_id
-            ltrb = tr.to_ltrb()
-            bb = [int(e) for e in ltrb]
-            """
-            cv2.rectangle(frame, (bb[0], bb[1]), (bb[2], bb[3]), (0, 0, 225), 2)
-            cv2.putText(frame, str(tr_id), (bb[0], bb[1]), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 225), 2)
-            """
-
     else:
         # np.array([x1, y1, x2, y2, track_id, class_id, conf]
         detections = []
@@ -119,16 +107,8 @@ def objectTracking(boxes, frame):
             detections.append(dets)
 
         tracks = tracker.update(torch.tensor(detections), frame)
-        """
-        for trnp in tracks:
-            tr = trnp.tolist()
-            cv2.rectangle(frame, (tr[0], tr[1]), (tr[2], tr[3]), (0, 0, 225), 2)
-            cv2.putText(frame, f"{model.names[tr[5]]}{str(tr[4])}", (tr[0], tr[1]), cv2.FONT_HERSHEY_SIMPLEX, 1,
-                        (0, 0, 225), 2)
-        """
 
     duration = time.time() - t
-    # cv2.putText(frame, f"FPS: {1 / duration}", (20, 70), cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0, 255, 0), 2)
     return tracks
 
 
@@ -206,23 +186,7 @@ def getAngles(tracks, frame):
         x1, y1, x2, y2, name, id = int(tr[0]), int(tr[1]), int(tr[2]), int(tr[3]), model.names[int(tr[5])], tr[4]
         if name in ['car', 'truck', 'bus']:
             angles[id] = (predicted[cnt][0] * 360)
-            angle = predicted[cnt][0] * 360
             cnt += 1
-
-            """
-            # draw
-            length = 150
-            start_point = ((x1 + x2) // 2, (y1 + y2) // 2)
-            # Convert the angle to radians
-            angle_rad = np.radians(90 - angle)
-
-            # Calculate the end point
-            end_point = (int(start_point[0] - length * np.cos(angle_rad)),
-                         int(start_point[1] - length * np.sin(angle_rad)))
-
-            # Draw the arrowed line
-            # cv2.arrowedLine(frame, start_point, end_point, (0, 255, 0), thickness=2)
-            """
 
     return angles
 

@@ -3,10 +3,92 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YOLO Object Detection</title>
+    <title>Microphone Toggle Example</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
 </head>
 <body>
-    <h1>YOLO Object Detection</h1>
-    <img src="{{ url_for('video_feed') }}" width="640" height="480">
+    <h1>Microphone Toggle Example</h1>
+    <button id="animatedButton" onclick="toggleAnimation()">
+        <div id="circle"></div>
+        <img src="/static/microphone.png" height="512" alt="microphone">
+    </button>
+    <script>
+        // audio recording
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        console.log('Audio Context Sample Rate:', audioContext.sampleRate);
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const toggleButton = document.getElementById('animatedButton');
+            const socket = io();
+
+            let isMicrophoneOn = false;
+
+            toggleButton.addEventListener('click', () => {
+                isMicrophoneOn = !isMicrophoneOn;
+                socket.emit('toggle_microphone');
+
+                if (!isMicrophoneOn) {
+                    // If microphone is toggled off, send the recorded audio to the server
+                    socket.emit('send_audio');
+                }
+            });
+
+            navigator.mediaDevices.getUserMedia({ audio: true })
+                .then(handleSuccess)
+                .catch(handleError);
+
+            function handleSuccess(stream) {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const source = audioContext.createMediaStreamSource(stream);
+
+                // Create a script processor node to access raw audio data
+                const scriptNode = audioContext.createScriptProcessor(4096, 1, 1);
+                source.connect(scriptNode);
+                scriptNode.connect(audioContext.destination);
+
+                scriptNode.onaudioprocess = (event) => {
+                    if (isMicrophoneOn) {
+                        const inputData = event.inputBuffer.getChannelData(0);
+                        // Send audio data to the server using Socket.IO
+                        socket.emit('audio_data', { audioData: inputData });
+                    }
+                };
+            }
+
+            function handleError(error) {
+                console.error('Error accessing microphone:', error);
+            }
+
+            // Listen for server response
+            socket.on('microphone_toggled', (data) => {
+                console.log(data.status);
+            });
+
+            socket.on('processed_audio', (data) => {
+                console.log('Server response:', data);
+                // Handle the processed audio data as needed
+            });
+        });
+
+
+        // button animation
+        var isAnimating = false;
+
+        function toggleAnimation() {
+            var button = document.getElementById('animatedButton');
+            var circle = document.getElementById('circle');
+            isAnimating = !isAnimating;
+            if (isAnimating) {
+                button.classList.add('extravagant-color-change');
+                circle.style.animation = 'ripple 0.6s ease-out';
+            } else {
+                button.classList.remove('extravagant-color-change');
+                circle.style.animation = 'none';
+                circle.offsetHeight; /* Trigger reflow to restart the animation */
+                circle.style.animation = 'ripple 0.6s ease-out';
+            }
+        }
+    </script>
 </body>
 </html>

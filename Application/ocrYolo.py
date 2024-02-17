@@ -38,9 +38,13 @@ def detect_objects_and_extract_text(frame):
         x1, y1, x2, y2, name = int(tr[0]), int(tr[1]), int(tr[2]), int(tr[3]), model.names[int(tr[5])]
         tr_id = tr[4]
         name = classes[tr[5]]
-        cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 0, 225), 2)
-        cv2.putText(frame, f"ID: {tr_id}, {name}, {distances[tr_id] if name in ['car', 'truck', 'bus', 'person'] else ''}m", (x1, y1), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 225), 2)
-    return frame
+        # cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 0, 225), 2)
+        # cv2.putText(frame, f"ID: {tr_id}, {name}, {distances[tr_id] if name in ['car', 'truck', 'bus', 'person'] else ''}m", (x1, y1), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 225), 2)
+
+    # Convert the information to text prompt
+    textPrompt = ""
+    
+    return textPrompt
 
 
 def speak(extracted_text):
@@ -51,21 +55,5 @@ def say(extracted_text):
     engine.say(extracted_text)
     engine.runAndWait()
 
-# Initialize the video capture
-# cap = cv2.VideoCapture(0)
-#
-# while cap.isOpened():
-#     ret, frame = cap.read()
-#     if not ret:
-#         break
-#
-#     # Perform object detection and text extraction on the frame
-#     detect_objects_and_extract_text(frame)
-#
-#     # Quitting
-#     if cv2.waitKey(1) & 0xFF == ord('q'):
-#         break
-#
-# # Release the video capture and close OpenCV windows
-# cap.release()
-# cv2.destroyAllWindows()
+
+# Define three classes: vehicle, person, staticObject
