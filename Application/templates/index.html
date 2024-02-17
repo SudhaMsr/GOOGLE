@@ -8,69 +8,84 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
 </head>
 <body>
-    <h1>Microphone Toggle Example</h1>
-    <button id="animatedButton" onclick="toggleAnimation()">
-        <div id="circle"></div>
-        <img src="/static/microphone.png" height="512" alt="microphone">
-    </button>
+    <div id="title-container">
+        <h1 id="title-text">Vision Assist</h1>
+    </div>
+    <div id="button-container">
+        <button id="animatedButton" onclick="toggleAnimation()">
+            <div id="circle"></div>
+            <img src="/static/microphone.png" height="512" alt="microphone">
+        </button>
+    </div>
+
+     <audio id="audioPlayer" controls style="display: none;">
+        <!-- Initially, no source is set. It will be set dynamically using JavaScript. -->
+    </audio>
+
     <script>
         // audio recording
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        console.log('Audio Context Sample Rate:', audioContext.sampleRate);
+        const recognition = new webkitSpeechRecognition(); // Use the Webkit prefix for some browsers
+        recognition.continuous = true;
+        recognition.lang = 'en-US';
+        const audioPlayer = document.getElementById('audioPlayer');
+
+        function playAudioFromPath(path) {
+            audioPlayer.src = path; // Replace with the actual path
+            audioPlayer.load(); // Load the new source
+            audioPlayer.play(); // Start playing the audio
+        }
 
         document.addEventListener('DOMContentLoaded', () => {
             const toggleButton = document.getElementById('animatedButton');
             const socket = io();
 
             let isMicrophoneOn = false;
+            let recognizedText = "";
 
             toggleButton.addEventListener('click', () => {
                 isMicrophoneOn = !isMicrophoneOn;
-                socket.emit('toggle_microphone');
 
-                if (!isMicrophoneOn) {
-                    // If microphone is toggled off, send the recorded audio to the server
-                    socket.emit('send_audio');
+                if (isMicrophoneOn) {
+                    // Start speech recognition when microphone is toggled on
+                    recognition.start();
+                    playAudioFromPath("/static/on.wav")
+                } else {
+                    // Stop speech recognition when microphone is toggled off
+                    recognition.stop();
+                    playAudioFromPath("/static/off.wav")
                 }
             });
 
-            navigator.mediaDevices.getUserMedia({ audio: true })
-                .then(handleSuccess)
-                .catch(handleError);
+            recognition.onresult = (event) => {
+                const last = event.results.length - 1;
+                const recognizedText = event.results[last][0].transcript;
+                console.log('Recognized Text:', recognizedText);
+                // Send the recorded text to the server
+                socket.emit('send_text', recognizedText);
+            };
 
-            function handleSuccess(stream) {
-                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                const source = audioContext.createMediaStreamSource(stream);
+            recognition.onerror = (event) => {
+                console.error('Speech recognition error:', event.error);
+            };
 
-                // Create a script processor node to access raw audio data
-                const scriptNode = audioContext.createScriptProcessor(4096, 1, 1);
-                source.connect(scriptNode);
-                scriptNode.connect(audioContext.destination);
-
-                scriptNode.onaudioprocess = (event) => {
-                    if (isMicrophoneOn) {
-                        const inputData = event.inputBuffer.getChannelData(0);
-                        // Send audio data to the server using Socket.IO
-                        socket.emit('audio_data', { audioData: inputData });
-                    }
-                };
-            }
-
-            function handleError(error) {
-                console.error('Error accessing microphone:', error);
-            }
 
             // Listen for server response
             socket.on('microphone_toggled', (data) => {
                 console.log(data.status);
             });
 
-            socket.on('processed_audio', (data) => {
+            socket.on('processed_text', (data) => {
                 console.log('Server response:', data);
-                // Handle the processed audio data as needed
+            });
+
+            // text to speech
+            socket.on('speak', (textToSpeak) => {
+                const utterance = new SpeechSynthesisUtterance(textToSpeak);
+                utterance.rate = 1.25
+                utterance.voice = window.speechSynthesis.getVoices().find(voice => voice.gender === "female");
+                window.speechSynthesis.speak(utterance);
             });
         });
-
 
         // button animation
         var isAnimating = false;

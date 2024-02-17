@@ -22,6 +22,7 @@ def speechToText(audio_data):
     response = client.recognize(config=config, audio=audio)
 
     transcribed_text = ""
+    print(response.results)
     for result in response.results:
         transcribed_text += result.alternatives[0].transcript + " "
 

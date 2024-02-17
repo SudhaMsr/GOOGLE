@@ -1,10 +1,26 @@
-body, html {
+html {
   height: 100%;
   margin: 0;
   display: flex;
   justify-content: center;
   align-items: center;
   background-color: #f0f0f0;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh; /* Set the height of the body to the viewport height */
+    margin: 0; /* Remove default body margin */
+}
+
+#title-text {
+  position: relative;
+  margin-top: -150px;
+  font-family: 'Arial', sans-serif; /* Change to the desired font */
+  font-size: 3em; /* Adjust the font size as needed */
 }
 
 #animatedButton {
