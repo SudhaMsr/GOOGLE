@@ -1,0 +1,124 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ripple Animated Button</title>
+  <style>
+    body, html {
+      height: 100%;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #f0f0f0;
+    }
+
+    #animatedButton {
+      position: relative;
+      width: 300px;
+      height: 300px;
+      border-radius: 50%;
+      border: none;
+      background-color: #4CAF50;
+      cursor: pointer;
+      overflow: hidden;
+    }
+
+    #circle {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background-color: rgba(255, 255, 255, 0.3);
+      animation: ripple 0.6s ease-out;
+      pointer-events: none;
+    }
+
+    #animatedButton img {
+      width: 80%;
+      height: auto;
+      display: block;
+      margin: 0 auto;
+    }
+
+    @keyframes ripple {
+      0% {
+        width: 0;
+        height: 0;
+        opacity: 0.3;
+      }
+      50% {
+        width: 300px;
+        height: 300px;
+        opacity: 0.5;
+      }
+      100% {
+        width: 600px;
+        height: 600px;
+        opacity: 0;
+      }
+    }
+
+    @keyframes extravagantColorChange {
+      0% {
+        background-color: #FF0000; /* Red */
+      }
+      14% {
+        background-color: #FF7F00; /* Orange */
+      }
+      28% {
+        background-color: #FFFF00; /* Yellow */
+      }
+      42% {
+        background-color: #00FF00; /* Green */
+      }
+      56% {
+        background-color: #0000FF; /* Blue */
+      }
+      70% {
+        background-color: #4B0082; /* Indigo */
+      }
+      84% {
+        background-color: #9400D3; /* Violet */
+      }
+      100% {
+        background-color: #FF0000; /* Back to Red */
+      }
+    }
+
+    .extravagant-color-change {
+      animation: extravagantColorChange 5s infinite ease-in-out;
+    }
+  </style>
+</head>
+<body>
+  <button id="animatedButton" onclick="toggleAnimation()">
+        <img src = "/templates/microphone.jpg" height = 100>
+  </button>
+
+  <script>
+    var isAnimating = false;
+
+    function toggleAnimation() {
+      var button = document.getElementById('animatedButton');
+      var circle = document.getElementById('circle');
+      isAnimating = !isAnimating;
+      if (isAnimating) {
+        button.classList.add('extravagant-color-change');
+        circle.style.animation = 'ripple 0.6s ease-out';
+      } else {
+        button.classList.remove('extravagant-color-change');
+        circle.style.animation = 'none';
+        circle.offsetHeight; /* Trigger reflow to restart the animation */
+        circle.style.animation = 'ripple 0.6s ease-out';
+      }
+    }
+  </script>
+</body>
+</html>
+

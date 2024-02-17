@@ -21,6 +21,7 @@ def index():
 
 @app.route('/update_location', methods=['POST'])
 def receive_data():
+
     # Receive latitude and longitude data from the AJAX request
     data = request.json
     latitude = data['latitude']
