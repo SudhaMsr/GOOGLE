@@ -15,7 +15,7 @@ latitude, longitude = None, None
 last_instruction = ""
 
 destination_lat, destination_lng = 51.47517914572953, -0.18708572037465862
-
+address = "University of Bristol"
 
 @app.route('/')
 def index():
@@ -26,6 +26,8 @@ def index():
 def update_loc():
     global latitude, longitude
     data = request.json
+    destination_lat,destination_lng = geocode(address,api_key)
+    print(destination_lat, destination_lng)
     latitude = data['latitude']
     longitude = data['longitude']
     get_prompt(destination_lat, destination_lng)
@@ -87,6 +89,21 @@ def html_to_plaintext(html_text):
     # Remove HTML tags
     plaintext = re.sub(r'<[^>]*>', '', plaintext)
     return plaintext
+
+def geocode(address,api_key):
+    url = f"https://maps.googleapis.com/maps/api/geocode/json?address={address}&key={api_key}"
+    response = requests.get(url)
+    data = response.json()
+
+    if data["status"] == "OK":
+        location = data["results"][0]["geometry"]["location"]
+        latitude = location["lat"]
+        longitude = location["lng"]
+        return latitude, longitude
+    else:
+        return "No location found"
+
+
 
 
 if __name__ == '__main__':

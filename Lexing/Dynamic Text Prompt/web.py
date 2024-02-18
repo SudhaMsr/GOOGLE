@@ -7,8 +7,8 @@ app = Flask(__name__)
 api_key = "AIzaSyAj5is27Ui1bJ5CMSCdGEcus41LIiZ5Zy8"
 # origin_lat = 51.455205632789955
 # origin_lng = -2.582902280206153
-# destination_lat = 51.454514
-# destination_lng = -2.587910
+destination_lat = 51.454514
+destination_lng = -2.587910
 #
 # I,D,S = get_walking_directions(api_key, origin_lat, origin_lng, destination_lat, destination_lng)
 # print(I)
