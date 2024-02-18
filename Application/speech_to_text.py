@@ -2,6 +2,7 @@ from google.cloud import speech
 from google.oauth2 import service_account
 import base64
 
+
 LANGUAGE = 'en-US'
 CHANNELS = 1
 RATE = 48000
@@ -14,7 +15,6 @@ client = speech.SpeechClient(credentials=credentials)
 def speechToText(audio_data):
     # speech to text
     content = base64.b64decode(bytes(audio_data))
-
     audio = speech.RecognitionAudio(content=content)
     config = speech.RecognitionConfig(encoding=speech.RecognitionConfig.AudioEncoding.LINEAR16,
                                       sample_rate_hertz=RATE,

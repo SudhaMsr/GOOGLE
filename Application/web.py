@@ -2,6 +2,8 @@ from flask import Flask, render_template, request
 from flask_socketio import SocketIO
 from math import radians, sin, cos, sqrt, atan2
 import requests
+from html import unescape
+import re
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "thesecretkey"
@@ -44,8 +46,9 @@ def get_prompt(destination_lat, destination_lng):
 
     # distance_to_instruction = calculate_distance(latitude, longitude, coords[0], coords[1])
     # prompt = f"Next instruction: {closest_instruction}. Distance: {distance_to_instruction} km"
-    prompt = f"Next instruction: {closest_instruction}."
+    prompt = f"Next instruction: {html_to_plaintext(closest_instruction)}."
     print("sending message")
+    print(prompt)
     socketio.send(prompt)
 
 
@@ -77,6 +80,14 @@ def get_walking_directions(api_key, origin_lat, origin_lng, destination_lat, des
     else:
         print(f"Error: {data['status']}")
 
+def html_to_plaintext(html_text):
+    # Replace HTML entities with their corresponding characters
+    plaintext = unescape(html_text)
+
+    # Remove HTML tags
+    plaintext = re.sub(r'<[^>]*>', '', plaintext)
+    return plaintext
+
 
 if __name__ == '__main__':
-    socketio.run(app, debug=True)
+    socketio.run(app, debug=True, allow_unsafe_werkzeug=True)
