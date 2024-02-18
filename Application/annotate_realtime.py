@@ -68,6 +68,7 @@ FOCAL_LENGTH = getFocalLength()
 lastDistances = {}
 lastTime = time.time()
 
+
 def realTimeAnnotate(frame):
     boxes = objectsDetection(frame)
 
@@ -107,8 +108,6 @@ def objectTracking(boxes, frame):
             detections.append(dets)
 
         tracks = tracker.update(torch.tensor(detections), frame)
-
-    duration = time.time() - t
     return tracks
 
 
@@ -143,7 +142,7 @@ def distancesEstimation(tracks, angles):
         f = FOCAL_LENGTH
 
         distance[id] = W * f / w
-        print(f"Real Width: {W}, Focal Length: {f}, Object Width in Pixels: {w}, Distance: {distance[id]}")
+        # print(f"Real Width: {W}, Focal Length: {f}, Object Width in Pixels: {w}, Distance: {distance[id]}")
     return distance
 
 
@@ -210,3 +209,5 @@ def getActualWidth(constSize, angle=None):
     transformedXs = transformedPoints[:, :-1].squeeze()
     return transformedXs.max() - transformedXs.min()
 
+if __name__ == "__main__":
+    angle_estimator.predict(np.zeros((1, 128, 128, 3)))
