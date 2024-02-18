@@ -1,53 +1,45 @@
+<!-- templates/index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Video Streaming App</title>
+    <title>Video Streaming Example</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
 </head>
 <body>
-    <h1>Video Streaming App</h1>
-    <button id="toggleButton" onclick="toggleVideo()">Toggle Video</button>
-    <video id="video" style="display:none;"></video>
+    <video id="video" width="640" height="480" autoplay></video>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
     <script>
-        var socket = io.connect('http://' + document.domain + ':' + location.port);
+        const socket = io();
 
-        var constraints = {
-            video: true
-        };
+        const video = document.getElementById('video');
+        const constraints = { video: true };
 
         navigator.mediaDevices.getUserMedia(constraints)
-            .then(function (stream) {
-                var video = document.getElementById('video');
+            .then((stream) => {
                 video.srcObject = stream;
-                video.play();
 
-                socket.on('receive_frame', function (data) {
-                    var frame = new Image();
-                    frame.src = 'data:image/jpeg;base64,' + data;
-                    document.body.appendChild(frame);
-                });
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+                canvas.width = video.width;
+                canvas.height = video.height;
+
+                setInterval(() => {
+                    context.drawImage(video, 0, 0, video.width, video.height);
+                    const frameData = canvas.toDataURL('image/jpeg');
+                    socket.emit('video_frame', frameData);
+                }, 1000 / 30);  // Adjust the interval as needed
             })
-            .catch(function (error) {
+            .catch((error) => {
                 console.error('Error accessing camera:', error);
             });
 
-        function toggleVideo() {
-            var video = document.getElementById('video');
-            var button = document.getElementById('toggleButton');
-
-            if (video.style.display === 'none') {
-                video.style.display = 'block';
-                button.textContent = 'Disable Video';
-                socket.emit('video_toggle', { status: 'enabled' });
-            } else {
-                video.style.display = 'none';
-                button.textContent = 'Enable Video';
-                socket.emit('video_toggle', { status: 'disabled' });
-            }
-        }
+        // Listen for processed frames from the server
+        socket.on('processed_frame', (frameData) => {
+            // Handle processed frames as needed
+            console.log('Received processed frame');
+        });
     </script>
 </body>
 </html>

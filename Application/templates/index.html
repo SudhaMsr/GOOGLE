@@ -18,9 +18,7 @@
         </button>
     </div>
 
-     <audio id="audioPlayer" controls style="display: none;">
-        <!-- Initially, no source is set. It will be set dynamically using JavaScript. -->
-    </audio>
+     <audio id="audioPlayer" controls style="display: none;"></audio>
 
     <script>
         // audio recording
@@ -68,23 +66,87 @@
                 console.error('Speech recognition error:', event.error);
             };
 
-
-            // Listen for server response
-            socket.on('microphone_toggled', (data) => {
-                console.log(data.status);
-            });
-
             socket.on('processed_text', (data) => {
                 console.log('Server response:', data);
             });
 
             // text to speech
             socket.on('speak', (textToSpeak) => {
+                if(window.speechSynthesis.speaking) return
+
                 const utterance = new SpeechSynthesisUtterance(textToSpeak);
                 utterance.rate = 1.25
                 utterance.voice = window.speechSynthesis.getVoices().find(voice => voice.gender === "female");
                 window.speechSynthesis.speak(utterance);
             });
+
+            // scan
+            let stream;
+            let videoElement;
+
+
+            socket.on('request_scan', () => {
+               socket.emit("captured_frame", captureFrame());
+            });
+
+            socket.on('deactivate_scan', () => {
+                stopVideoStream()
+            })
+
+            async function captureFrame() {
+                if (!stream || !videoElement) {
+                    stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                    videoElement = document.createElement('video');
+                    videoElement.srcObject = stream;
+                }
+
+                const track = stream.getVideoTracks()[0];
+                const imageCapture = new ImageCapture(track);
+
+                imageCapture.grabFrame()
+                    .then(frame => frameToBase64(frame))
+                    .then(frameData => {
+                        console.log(frameData)
+                        if (frameData.trim() !== '') {
+                            socket.emit('video_frame', frameData);
+                        } else {
+                            console.error('Empty frameData.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error capturing frame:', error);
+                    });
+            }
+
+            function stopVideoStream() {
+                // Stop the video stream and remove the video element
+                if (stream) {
+                    const tracks = stream.getTracks();
+                    tracks.forEach(track => track.stop());
+                }
+
+                if (videoElement) {
+                    document.body.removeAttribute(videoElement);
+                }
+            }
+
+            function frameToBase64(frame) {
+                return new Promise(resolve => {
+                    const canvas = document.createElement('canvas');
+                    const context = canvas.getContext('2d');
+
+                    // Set canvas dimensions to match the frame
+                    canvas.width = frame.width;
+                    canvas.height = frame.height;
+
+                    // Draw the frame onto the canvas
+                    context.drawImage(frame, 0, 0, frame.width, frame.height);
+
+                    // Convert the canvas content to base64
+                    const base64Data = canvas.toDataURL('image/png').split(',')[1];
+                    resolve(base64Data);
+                });
+            }
         });
 
         // button animation
