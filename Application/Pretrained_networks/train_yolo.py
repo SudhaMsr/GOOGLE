@@ -4,7 +4,6 @@ import json
 import numpy as np
 import torch
 
-
 model = YOLO("Pretrained_networks/yolov8n.pt")
 print(torch.cuda.get_device_name(0))
 

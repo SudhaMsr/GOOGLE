@@ -20,5 +20,4 @@ def getTextDirections(source,destination):
         print(step['html_instructions'])
 
 
-
 getTextDirections("Print hall student accomodation","Physics building university of bristol")

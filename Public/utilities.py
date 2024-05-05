@@ -1,6 +1,4 @@
 import cv2
-
-
 def drawBoxes(img, boxes, names):
     for b in boxes:
         c = b.xywh[0].tolist()

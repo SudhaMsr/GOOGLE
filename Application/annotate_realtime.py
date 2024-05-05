@@ -11,6 +11,7 @@ from pathlib import Path
 import keras
 import numpy as np
 
+
 TRACKER_NAME = "strongSORT"
 
 # class for angle_estimator:

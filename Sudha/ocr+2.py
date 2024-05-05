@@ -12,7 +12,7 @@ while True:
     ret, frame = cap.read()
     if not ret:
         break
-
+    
     # Perform OCR on the frame
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     extracted_text = pytesseract.image_to_string(gray)

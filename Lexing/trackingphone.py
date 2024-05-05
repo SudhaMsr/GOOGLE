@@ -22,6 +22,5 @@ def receive_data():
     # You can also return a response to the JavaScript code if needed
     return jsonify({"status": "success"})
 
-
 if __name__ == '__main__':
     app.run(debug=True)
